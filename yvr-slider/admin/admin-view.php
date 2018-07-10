@@ -12,12 +12,26 @@
 
   	<div class="uk-grid-match uk-child-width-1-1" uk-grid>
   		<div class="">
-  			<div class="uk-card uk-card-primary uk-card-body">
+  			<div class="uk-card uk-card-default uk-card-body">
   				
   				<div class="" uk-grid>
-				    <div class="uk-width-auto@s">asss</div>
-				    <div class="uk-width-expand@s">meu</div>
-				    <div class="uk-width-auto@s">ss</div>
+				    <div class="uk-width-auto@s uk-flex uk-flex-middle">Select Slideshow:</div>
+
+				    <?php $sliders = $this->all_yvr_sliders( 'title' ); ?>
+				    <div class="uk-width-expand@m">
+				    	<form>
+						    <select class="uk-select">
+						    	<?php foreach ($sliders as $slider) { ?>
+						    		<option value="<?php echo $slider['id']; ?>"><?php echo $slider['title']; ?></option>
+						    	<?php } ?>
+						    </select>
+						</form>
+				    </div>
+				    <div class="uk-width-auto@s uk-flex uk-flex-middle">OR</div>
+				    <div class="uk-width-auto@s">
+				    	<a href="<?php echo wp_nonce_url(admin_url("admin-post.php?action=yvrslider_create_slider"), "yvrslider_create_slider")?>"
+				    		class="uk-button uk-button-primary" title="Create a new slideshow"><span uk-icon="plus"></span> Create a new slideshow</a>
+				    </div>
 				</div>
 
   			</div>

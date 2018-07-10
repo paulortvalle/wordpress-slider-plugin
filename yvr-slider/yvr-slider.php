@@ -92,6 +92,7 @@ class YVRSliderPlugin {
      */
     private function get_plugin_classes() {
         return array(
+            'yvrslider'             => YVRSLIDER_PATH . 'includes/yvrslider.class.php',
             'yvrslider_admin_pages' => YVRSLIDER_PATH . 'admin/Pages.php',
         );
     }
@@ -134,6 +135,8 @@ class YVRSliderPlugin {
         add_action('admin_menu', 	array($this, 'register_admin_pages'));
         add_action('init', 			array($this, 'register_slider_post_types'));
         add_action('init', 			array($this, 'register_taxonomy'));
+
+        add_action('admin_post_yvrslider_create_slider', array($this, 'create_slider'));
         // more functions
     }
 
@@ -294,6 +297,93 @@ class YVRSliderPlugin {
                 'label' => "Slider"
             )
         );
+
+    }
+
+    /**
+     * Create a new slider
+     */
+    public function create_slider() {
+
+        // check nonce
+        //check_admin_referer( "yvrslider_create_slider" );
+
+        //$capability = apply_filters( 'yvrslider_capability', 'edit_others_posts' );
+
+        //if ( ! current_user_can( $capability ) ) 
+            //return;
+
+        $defaults = array();
+
+        // if possible, take a copy of the last edited slider settings in place of default settings
+        //if ( $last_modified = $this->find_slider( 'modified', 'DESC' ) ) {
+            //$defaults = get_post_meta( $last_modified, 'ml-slider_settings', true );
+        //}
+
+        // insert the post
+        $id = wp_insert_post( array(
+                'post_title' => "New YVR Slideshow",
+                'post_status' => 'publish',
+                'post_type' => 'yvr-slider'
+            )
+        );
+
+        /*
+        // use the default settings if we can't find anything more suitable.
+        if ( empty( $defaults ) ) {
+            $slider = new YVRSlider( $id, array() );
+            $defaults = $slider->get_default_parameters();
+        }
+
+        // insert the post meta
+        add_post_meta( $id, 'yvr-slider_settings', $defaults, true );
+
+        // create the taxonomy term, the term is the ID of the slider itself
+        wp_insert_term( $id, 'yvr-slider' ); */
+
+        wp_redirect( admin_url( "admin.php?page=yvrslider&id={$id}" ) );
+
+    }
+
+
+
+    /**
+     * Get sliders. Returns an array of currently published sliders.
+     *
+     * @param string $sort_key Specified sort key
+     * @return array all published sliders
+     */
+    public function all_yvr_sliders( $sort_key = 'date' ) {
+
+        $sliders = array();
+
+        // list the tabs
+        $args = array(
+            'post_type' => 'yvr-slider',
+            'post_status' => 'publish',
+            'orderby' => $sort_key,
+            'suppress_filters' => 1, // wpml, ignore language filter
+            'order' => 'ASC',
+            'posts_per_page' => -1
+        );
+
+        $args = apply_filters( 'yvrslider_all_yvr_sliders_args', $args );
+
+        $all_sliders = get_posts( $args );
+
+        foreach( $all_sliders as $slideshow ) {
+
+            $active = $this->slider && ( $this->slider->id == $slideshow->ID ) ? true : false;
+
+            $sliders[] = array(
+                'active' => $active,
+                'title' => $slideshow->post_title,
+                'id' => $slideshow->ID
+            );
+
+        }
+
+        return $sliders;
 
     }
 
